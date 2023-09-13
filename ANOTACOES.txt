@@ -1,0 +1,120 @@
+- nos componentes de serviço o decorator '@Injectable()' é usado para permitir a injeção de outros serviços no construtor do serviço. No caso dos componentes não preciso usar o '@Injectable' porque ele já está embutido no '@Component()'.
+
+- existem algumas propriedades específicas que podem existir nos objetos DOM e não existir nos elementos HTML, quando tentar modificar uma propriedade que existe na tag HTML e não existe no DOM, tem que usar o prefixo 'attr.'
+> [attr.colspan]="-valor-"
+
+- forma de controlar a classe de um elemento usando uma variável
+> [ngClass]="{
+            'bi-chevron-double-down': isExpanded,
+            'bi-chevron-double-up': !isExpanded
+           }"
+
+- ativar ou desativar a classe de um elemento usando o property binding
+> [class.-nome da classe-]="-variável com valor true ou false-"
+
+1- para adicionar ou remover classes dos componentes preciso usar o 'property binding', por ser uma classe tenho que usar o '.-nome da classe-' depois do sinal de igual vem a variável para controlar a classe.
+> [class.bi-star-fill]="isFavorite"
+
+2- o '@Input()' é usado para tornar a variável visível aos componentes externos para que possa ser passado um valor para ela.
+> @Input() isFavorite2:boolean;
+
+- é possível informar um apelido para a variável definida como @Input(), neste caso o nome usado no template será o apelido informado dentro do parentêses.
+> @Input('alias-variavel') isFavorite2:boolean;
+
+3- para passar valores para componentes externos, precisa usar o decorator '@Output()' e a variável precisa ser uma instância da classe 'EventEmitter()'.
+> @Output() nomeTeste = new EventEmitter();
+
+- enviar o valor para o componente externo
+> nomeTeste.emit(-valor a ser passado-)
+
+- componente externo recebendo o valor, o valor será recebido atravéz do evento identificado como '$event'
+> <meu-componente (nomeTeste)="minhaFuncao($event)"></meu-componente>
+
+4- o 'ElementRef' é para dar acesso ao elementos que está usando a diretiva.
+
+5- adicionando a diretiva appInputFormat ao componente, neste caso a variavel 'format' está sendo passada para a diretiva com o valor de 'uppercase'.
+
+TEMPLATE DRIVEN FORMS
+- os inputs do form devem ter a diretiva 'ngModel', dessa forma o angular cria automáticamente um objeto 'formControl' e o associa a este input, outra exigência é que o componente deve ter a propriedade 'name'.
+> <input type='text' ngModel name='firstName'/> 
+
+- para acessar o valor do input precisa criar a referência de uma variável template.
+> <input type='text' ngModel name='firstName' #firstName="ngModel" /> 
+
+- quando o angular encontra  a tag form, automáticamente ele aplica a diretiva 'ngForm', então é só criar uma variável template para referenciar o objeto criado pela diretiva 'ngForm' e usar o 'ngSubmit' para chamar um método que irá processar os valores dos campos do form.
+> <form #myForm = 'ngForm' (ngSumit) = "myFunction(myForm)">
+
+- depois que o objeto 'ngForm' é criado e referenciado através de uma variável de template, dentro do método podemos acessar os valores do form usando a propriedade 'value'.
+> myForm.value
+
+- dentro de um formulário é possível agrupar inputs usando a diretiva 'ngModelGroup'. O 'ngModelGroup' não possui 'ngSubmit' porque não faz sentido submeter apenas uma parte do formulário.
+> ngModelGroup="formGroup" #formGroup="ngModelGroup"
+
+- checkbox não precisa de variável template, é só adicionar a diretiva 'ngModel' e o 'name'
+
+REACTIVE FORMS
+
+- para criar 'reactive forms' precisa importar o 'ReactiveFormsModule' no app.module.
+
+- para criar um formulário reativo precisa criar uma instância do 'FormGroup', no construtor dele passamos um objeto que corresponde aos inputs do formulário que são instâncias do 'FormControl()'.
+> form= new FormGroup({
+    username: new FormControl(),
+    password: new FormControl()
+  });
+  
+- a tag 'form' deve possuir um 'property binding' recebendo o objeto que 'ForControl' que foi criado.
+
+> <form [formGroup]="form">
+
+- os inputs por sua vez devem ter a propriedade 'formControlName' associada às propriedades do objeto 'FormGroup'.
+
+> <input formControlName="username">
+  <input formControlName="password">	
+  
+- para acessar os inputs do formulário que são propriedades do objeto 'FormGroup', precisa usar o método 'get'.
+
+> form.get('password')?.touched
+
+- também pode criar um 'get' no arquivo '.ts'
+
+> get password(){
+    return this.form.get('password');
+  }
+  
+  *ngIf="password?.touched && !password?.valid"
+  
+- o construtor da classe 'FormGroup' aceita o tipo 'Validators' com parâmetro, eles funcionam como os validadores nativos do html.
+
+> form= new FormGroup({
+    username: new FormControl('', Validators.required),
+    password: new FormControl('', Validators.required)
+  });
+  
+ - FormGroup, FormBuilder e FormControl herdam as propriedades de AbstractControl.
+ 
+ - exemplo de um form complexo:
+ > form = new FormGroup({
+	name: new FormControl(),
+	contact: new FormGroup({
+		email: new FormControl(),
+		phone: new FormControl()
+	}),
+	topics: new FormArray([])
+   });
+   
+- o mesmo form acima construído usando o FormBuilder
+> constructor(fb: FormBuilder){
+	this.form= fb.group({
+		name: ['', Validators.required],
+		contact: fb.group({
+			email: [],
+			phone: []
+		}),
+		topics: fb.array([])
+	});
+
+}
+  
+
+
+
